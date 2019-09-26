@@ -5,7 +5,19 @@ var pool = require("../../pool")
 router.get('/list',function(req,res){
   var sql = "SELECT * FROM avue_prod";
   pool.query(sql,(err, result) => {
-    console.log(result) 
+    if(err){
+      throw err;
+    }
+    let data = {
+      list:[],
+      pageSize: 20,
+      pageNum: 1,
+      total: 50
+    }
+    if(result.length >= 0){
+      data.list = result
+      res.send({code: "0", msg: "操作成功", data: data})
+    }
   })
 });
  
