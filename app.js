@@ -1,6 +1,7 @@
 const express = require("express");
-let product = require("./routes/product/goods");
+let routes = require("./routes/index");
 const app = express();
+app.use('/static',express.static('static'));
 app.use('*',function (req, res, next) {
   res.header('Access-Control-Allow-Origin', 'http://localhost:8080'); //这个表示任意域名都可以访问，这样写不能携带cookie了。
   res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
@@ -13,6 +14,6 @@ app.use('*',function (req, res, next) {
     next();
   }
 });
-app.use("/product", product);
+app.use("/", routes);
 app.listen(3000);
 
