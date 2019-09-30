@@ -4,6 +4,6 @@ let upload = require("./upload/index");
 
 const router = express();
 
-router.use("/product", product);
+router.use("/prod", product);
 router.use("/upload", upload);
 module.exports = router;

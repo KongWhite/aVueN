@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({extended: false}));
  
-router.get('/list',function(req, res) {
+router.get("/list",function(req, res) {
   let obj = req.query,
   pageNum = obj.pageNum,
   pageSize = obj.pageSize,
@@ -67,14 +67,27 @@ router.get('/list',function(req, res) {
       }
       if (result.length >= 0) {
         data.total = result[0].total;
-        res.send({code: "0", msg: "操作成功!", data: data})
+        res.send({code: "0", msg: "操作成功!", data: data});
       }
     })
   })
 });
- 
+router.get("/findByProd",function(req, res) {
+  let obj = req.query,
+  prod_id = obj.prod_id;
+  var sqlList = "SELECT * FROM avue_prod WHERE 1=1";
+  sqlList += " AND prod_id = ?";
+  pool.query(sqlList,prod_id,(err, result) => {
+    if(err){
+      throw err;
+    }
+    if(result.length >= 0){
+      res.send({code: "0", msg: "操作成功!", data: result[0]}) 
+    }
+  })
+});
 
-router.post('/add',function(req,res) {
+router.post("/saveByProduct",function(req,res) {
   let obj = req.body,
   prod_id = obj.prod_id,
   prod_name = obj.prod_name,
@@ -89,21 +102,60 @@ router.post('/add',function(req,res) {
     if (err) {
       throw err;
     }
-    console.log(result)
     if (result.affectedRows > 0) {
-      res.send({code: "0", msg: "添加成功!"})
+      res.send({code: "0", msg: "添加成功!"});
     } else {
-      res.send({code: "1", msg: "添加失败!"})
+      res.send({code: "1", msg: "添加失败!"});
     }
   })
 });
  
-router.get('/edit',function(req,res){
-    res.send('显示商品 修改');
+router.post("/updateByproduct",function(req,res){
+  let obj = req.body,
+  prod_id = obj.prod_id,
+  prod_name = obj.prod_name,
+  category_id = obj.category_id,
+  status = obj.status,
+  pic = obj.pic,
+  ori_price = obj.ori_price,
+  price = obj.price,
+  sql = "UPDATE avue_prod SET prod_name = ?, category_id = ?, status = ?, pic = ?, ori_price = ?, price = ? WHERE prod_id = ?";
+  pool.query(sql,[prod_name, category_id, status, pic, ori_price, price, prod_id], (err ,result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result)
+    if (result.affectedRows > 0) {
+      res.send({code: "0", msg: "修改成功!"});
+    } else {
+      res.send({code: "1", msg: "修改失败!"});
+    }
+  })
 });
 
-router.get('/delete',function(req,res){
-    res.send('显示商品 删除');
+router.post('/deleteByProduct',function(req,res){
+  let obj = req.body;
+  let prod_id = obj.prodIds;
+  let sql = "DELETE FROM avue_prod WHERE prod_id in (";
+  for (let i =0; i<prod_id.length; i++) {
+    if (i<prod_id.length-1){
+      sql += prod_id[i] + ",";
+    } else {
+      sql += prod_id[i];
+    }
+  }
+  sql += ")";
+  console.log(sql);
+  pool.query(sql,[],(err, result) => {
+    if (err) {
+      throw err;
+    }
+    if (result.affectedRows > 0) {
+      res.send({code: "0", msg: "删除成功!"});
+    } else {
+      res.send({code: "1", msg: "删除失败!"});
+    }
+  })
 });
  
 module.exports = router;   //暴露这个 router模块
